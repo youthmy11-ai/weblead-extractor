@@ -2,6 +2,8 @@
 
 **Zero-dependency Manifest V3 Chrome extension to extract live HTML tables, public business emails, phone leads, and outbound links cleanly into RFC 4180 CSV or JSON.**
 
+![WebLead & Table Extractor Preview](assets/popup-preview.png)
+
 ---
 
 ## Key Features

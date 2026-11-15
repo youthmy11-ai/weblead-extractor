@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WebLead &amp; Table Extractor</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div>
+          <h1>WebLead &amp; Table Extractor</h1>
+          <p id="pageSummary" class="muted">Scanning active tab...</p>
+        </div>
+        <span id="tierBadge" class="badge badge-free">FREE</span>
+      </header>
+
+      <nav class="tabs" role="tablist">
+        <button class="tab-btn active" data-tab="tables" type="button">
+          Tables <span id="tabCountTables" class="count-pill">0</span>
+        </button>
+        <button class="tab-btn" data-tab="leads" type="button">
+          Emails &amp; Links <span id="tabCountLeads" class="count-pill">0</span>
+        </button>
+        <button class="tab-btn" data-tab="license" type="button">
+          Pro License
+        </button>
+      </nav>
+
+      <main class="content">
+        <section id="panel-tables" class="panel active">
+          <div class="controls">
+            <select id="tableSelect" class="input select"></select>
+            <button id="rescanBtn" class="btn btn-secondary" type="button">Rescan</button>
+          </div>
+
+          <div class="controls">
+            <input
+              id="regexInput"
+              class="input"
+              type="text"
+              placeholder="Pro regex filter (e.g. @acme\.com|director)"
+            />
+          </div>
+
+          <div id="tableLimitNotice" class="notice hidden"></div>
+
+          <div id="tablePreviewWrap" class="preview-wrap">
+            <p class="muted empty-state">No HTML tables detected on this page.</p>
+          </div>
+
+          <div class="actions">
+            <button id="copyCsvBtn" class="btn btn-secondary" type="button">Copy CSV</button>
+            <button id="downloadCsvBtn" class="btn btn-primary" type="button">Download CSV</button>
+            <button id="downloadJsonBtn" class="btn btn-secondary" type="button">Download JSON</button>
+          </div>
+        </section>
+
+        <section id="panel-leads" class="panel">
+          <div class="lead-group">
+            <div class="group-header">
+              <h2>Public Emails (<span id="emailCount">0</span>)</h2>
+              <button id="copyEmailsBtn" class="btn btn-xs" type="button">Copy All</button>
+            </div>
+            <ul id="emailList" class="item-list"></ul>
+          </div>
+
+          <div class="lead-group">
+            <div class="group-header">
+              <h2>Phone Candidates (<span id="phoneCount">0</span>)</h2>
+            </div>
+            <ul id="phoneList" class="item-list"></ul>
+          </div>
+
+          <div class="lead-group">
+            <div class="group-header">
+              <h2>Social &amp; Website Links (<span id="linkCount">0</span>)</h2>
+            </div>
+            <ul id="linkList" class="item-list"></ul>
+          </div>
+
+          <div class="actions">
+            <button id="exportLeadsCsvBtn" class="btn btn-primary" type="button">Export Leads CSV</button>
+            <button id="exportLeadsJsonBtn" class="btn btn-secondary" type="button">Export Leads JSON</button>
+          </div>
+        </section>
+
+        <section id="panel-license" class="panel">
+          <div class="card">
+            <h2>License Tier</h2>
+            <p id="licenseStatusText" class="status-text">Checking status...</p>
+
+            <label class="label" for="licenseKeyInput">Pro License Key</label>
+            <input
+              id="licenseKeyInput"
+              class="input"
+              type="text"
+              placeholder="FS-PRO-WL-XXXXXXXX-XXXX or FS-PRO-BUNDLE-XXXXXXXX-XXXX"
+            />
+
+            <div class="actions">
+              <button id="activateKeyBtn" class="btn btn-primary" type="button">Activate Pro</button>
+              <button id="clearKeyBtn" class="btn btn-secondary" type="button">Clear Key</button>
+            </div>
+
+            <div class="upgrade-box">
+              <p>
+                <strong>Community Free:</strong> Up to 25 exported rows per table, clean RFC 4180 CSV &amp; JSON, public email/link extraction.<br />
+                <strong>Pro Edition ($15 Lifetime):</strong> Unlimited rows per export + live regex row filter.
+              </p>
+              <a
+                id="upgradeLink"
+                class="btn btn-accent"
+                href="https://youthmy11-ai.github.io/#pricing"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Get Pro Key ($15) &rarr;
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span id="toast" class="toast">Ready</span>
+      </footer>
+    </div>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

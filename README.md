@@ -52,6 +52,8 @@ node --test tests/test_extractor.mjs
 ## Companion Tools in ForgeSuite Studio
 
 - **[TokenCost Lab (Free Web App)](https://youthmy11-ai.github.io/tokencalc.html)** — Client-side LLM token counter & AI agent API cost planner.
+- **[JSON2Sheet & PII Masker (Free Web App)](https://youthmy11-ai.github.io/json2sheet.html)** — Flatten nested JSON payloads into clean CSV/Markdown tables with PII redaction.
+- **[ScopeGuard SOW Builder (Free Web App)](https://youthmy11-ai.github.io/sowbuilder.html)** — Draft milestone escrow Statements of Work with 1-click CryptoBill USDT invoicing.
 - **[CryptoBill Forge (Free Web App)](https://youthmy11-ai.github.io/cryptobill.html)** — Serverless USDT (BEP20/TRC20) & PayPal invoice studio.
 - **[All-Access Pro Bundle ($35 · Save $14)](https://youthmy11-ai.github.io/#pricing)** — Lifetime unlock across WebLead Extractor Pro ($15), AutoShorts Studio Pro ($19), and CryptoBill Forge Pro ($15).
 

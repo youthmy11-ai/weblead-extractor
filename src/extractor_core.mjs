@@ -641,3 +641,118 @@ export function applyTierLimit(rows, isPro = false, options = {}) {
     regexApplied: false,
   };
 }
+
+function flattenJsonLdEntity(obj, prefix = "", out = {}) {
+  if (!obj || typeof obj !== "object") return out;
+  for (const [rawKey, val] of Object.entries(obj)) {
+    if (rawKey === "@context") continue;
+    const key = rawKey === "@type" ? "type" : rawKey === "@id" ? "id" : rawKey;
+    const col = prefix ? `${prefix}.${key}` : key;
+    if (val === null || val === undefined) continue;
+    if (Array.isArray(val)) {
+      const scalars = val.filter((v) => typeof v !== "object" || v === null);
+      if (scalars.length > 0) {
+        out[col] = normalizeCellText(scalars.join("; "));
+      }
+    } else if (typeof val === "object") {
+      flattenJsonLdEntity(val, col, out);
+    } else {
+      out[col] = normalizeCellText(val);
+    }
+  }
+  return out;
+}
+
+function collectJsonLdNodes(node, bucket) {
+  if (!node) return;
+  if (Array.isArray(node)) {
+    for (const item of node) collectJsonLdNodes(item, bucket);
+    return;
+  }
+  if (typeof node !== "object") return;
+  if (Array.isArray(node["@graph"])) {
+    collectJsonLdNodes(node["@graph"], bucket);
+    return;
+  }
+  if (Array.isArray(node.itemListElement)) {
+    for (const el of node.itemListElement) {
+      collectJsonLdNodes(el?.item || el, bucket);
+    }
+  }
+  bucket.push(node);
+}
+
+/**
+ * Parse Schema.org / JSON-LD blocks into structured table models plus raw contact text.
+ * @param {Array<string>} jsonLdStrings
+ * @returns {{ tables: Array<object>, extractedText: string }}
+ */
+export function extractJsonLdTables(jsonLdStrings) {
+  const rawList = Array.isArray(jsonLdStrings) ? jsonLdStrings : [];
+  const entities = [];
+  for (const raw of rawList) {
+    if (typeof raw !== "string" || !raw.trim()) continue;
+    try {
+      const parsed = JSON.parse(raw);
+      collectJsonLdNodes(parsed, entities);
+    } catch {
+      // Ignore malformed third-party JSON-LD blocks gracefully
+    }
+  }
+  if (entities.length === 0) {
+    return { tables: [], extractedText: "" };
+  }
+
+  const flatRows = entities.map((e) => flattenJsonLdEntity(e)).filter((o) => Object.keys(o).length > 0);
+  if (flatRows.length === 0) {
+    return { tables: [], extractedText: "" };
+  }
+
+  const keySet = new Set();
+  for (const obj of flatRows) {
+    for (const k of Object.keys(obj)) keySet.add(k);
+  }
+  const headers = Array.from(keySet);
+  const rows = flatRows.map((obj) => headers.map((h) => obj[h] ?? ""));
+  const extractedText = flatRows.map((obj) => Object.values(obj).join(" ")).join("\n");
+
+  return {
+    tables: [
+      {
+        index: 0,
+        name: "JSON-LD Schema.org Entities",
+        headers,
+        rows,
+        columnCount: headers.length,
+        rowCount: rows.length,
+      },
+    ],
+    extractedText,
+  };
+}
+
+/**
+ * Serialize extracted rows and headers into a GitHub-Flavored Markdown table.
+ * @param {Array<Array<unknown>>} rows
+ * @param {Array<string>} [headers]
+ * @returns {string}
+ */
+export function toMarkdownTable(rows, headers = []) {
+  const escapeMdCell = (val) =>
+    normalizeCellText(val).replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
+  const cols = Math.max(
+    Array.isArray(headers) ? headers.length : 0,
+    ...(Array.isArray(rows) ? rows.map((r) => (Array.isArray(r) ? r.length : 0)) : [0]),
+    1
+  );
+  const hdr = Array.from({ length: cols }, (_, i) => escapeMdCell(headers?.[i] || `Col ${i + 1}`));
+  const lines = [
+    `| ${hdr.join(" | ")} |`,
+    `| ${hdr.map(() => "---").join(" | ")} |`,
+  ];
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const cells = Array.from({ length: cols }, (_, i) => escapeMdCell(Array.isArray(row) ? row[i] ?? "" : ""));
+    lines.push(`| ${cells.join(" | ")} |`);
+  }
+  return lines.join("\n");
+}

@@ -9,10 +9,12 @@ import {
   applyTierLimit,
   computeLicenseChecksum,
   extractContactsAndLinks,
+  extractJsonLdTables,
   extractTablesFromModel,
   formatLicenseKey,
   isValidPublicEmail,
   toCsv,
+  toMarkdownTable,
   validateLicenseKey,
 } from "../src/extractor_core.mjs";
 
@@ -166,4 +168,33 @@ test("manifest.json and MV3 PNG icons exist and are valid", () => {
     const bytes = fs.readFileSync(iconPath);
     assert.equal(bytes.subarray(0, 8).toString("hex"), "89504e470d0a1a0a");
   }
+});
+
+test("extractJsonLdTables parses Schema.org graphs and toMarkdownTable formats GFM pipes safely", () => {
+  const sampleLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        name: "Acme | Dev Studio",
+        email: "hello@acme-dev.io",
+        telephone: "+1-415-555-0100",
+      },
+      {
+        "@type": "LocalBusiness",
+        name: "Beacon Ops",
+        email: "ops@beacon.co",
+      },
+    ],
+  });
+
+  const parsed = extractJsonLdTables([sampleLd, "{broken-json"]);
+  assert.equal(parsed.tables.length, 1);
+  assert.equal(parsed.tables[0].rowCount, 2);
+  assert.ok(parsed.extractedText.includes("hello@acme-dev.io"));
+
+  const md = toMarkdownTable(parsed.tables[0].rows, parsed.tables[0].headers);
+  assert.match(md, /\| type \| name \|/);
+  assert.match(md, /Acme \\\| Dev Studio/);
+  assert.match(md, /ops@beacon\.co/);
 });

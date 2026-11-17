@@ -49,11 +49,20 @@ node --test tests/test_extractor.mjs
 
 ---
 
+## What's New (ARIA Grids, Schema.org JSON-LD & Markdown Export)
+
+- Automatically scans standard HTML `<table>` elements, modern ARIA `[role="table"]` / `[role="grid"]` components, and embedded `<script type="application/ld+json">` Schema.org entities (`Organization`, `LocalBusiness`, `@graph`).
+- Export any detected table directly as **GFM Markdown (`Copy MD`)**, **RFC 4180 CSV** (with UTF-8 BOM option), or **JSON**.
+
+---
+
 ## Companion Tools in ForgeSuite Studio
 
 - **[TokenCost Lab (Free Web App)](https://youthmy11-ai.github.io/tokencalc.html)** — Client-side LLM token counter & AI agent API cost planner.
 - **[JSON2Sheet & PII Masker (Free Web App)](https://youthmy11-ai.github.io/json2sheet.html)** — Flatten nested JSON payloads into clean CSV/Markdown tables with PII redaction.
 - **[ScopeGuard SOW Builder (Free Web App)](https://youthmy11-ai.github.io/sowbuilder.html)** — Draft milestone escrow Statements of Work with 1-click CryptoBill USDT invoicing.
+- **[Calldata Lens (Free Web App)](https://youthmy11-ai.github.io/txdecode.html)** — Offline EVM ABI calldata decoder & `MAX_UINT256` approval risk inspector.
+- **[EnvShield Secret Scanner (Free Web App)](https://youthmy11-ai.github.io/envshield.html)** — Offline `.env`, API key & private key leak scanner and safe redactor.
 - **[CryptoBill Forge (Free Web App)](https://youthmy11-ai.github.io/cryptobill.html)** — Serverless USDT (BEP20/TRC20) & PayPal invoice studio.
 - **[All-Access Pro Bundle ($35 · Save $14)](https://youthmy11-ai.github.io/#pricing)** — Lifetime unlock across WebLead Extractor Pro ($15), AutoShorts Studio Pro ($19), and CryptoBill Forge Pro ($15).
 

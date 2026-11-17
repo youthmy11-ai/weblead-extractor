@@ -2,8 +2,10 @@ import {
   PRICING_URL,
   applyTierLimit,
   extractContactsAndLinks,
+  extractJsonLdTables,
   extractTablesFromModel,
   toCsv,
+  toMarkdownTable,
   validateLicenseKey,
 } from "./src/extractor_core.mjs";
 
@@ -28,6 +30,7 @@ const els = {
   tableLimitNotice: document.getElementById("tableLimitNotice"),
   tablePreviewWrap: document.getElementById("tablePreviewWrap"),
   copyCsvBtn: document.getElementById("copyCsvBtn"),
+  copyMdBtn: document.getElementById("copyMdBtn"),
   downloadCsvBtn: document.getElementById("downloadCsvBtn"),
   downloadJsonBtn: document.getElementById("downloadJsonBtn"),
   emailCount: document.getElementById("emailCount"),
@@ -285,8 +288,13 @@ async function scanCurrentTab() {
     const payload = response.payload;
     state.pageUrl = payload.url || "";
     state.pageTitle = payload.title || "";
-    state.tables = extractTablesFromModel(payload.tables || []);
-    state.leads = extractContactsAndLinks(payload.text || "", payload.links || []);
+    const domTables = extractTablesFromModel(payload.tables || []);
+    const ldRes = extractJsonLdTables(payload.jsonLd || []);
+    state.tables = [...domTables, ...ldRes.tables].map((t, i) => ({ ...t, index: i }));
+    const combinedText = ldRes.extractedText
+      ? `${payload.text || ""}\n${ldRes.extractedText}`
+      : payload.text || "";
+    state.leads = extractContactsAndLinks(combinedText, payload.links || []);
 
     els.pageSummary.textContent = state.pageTitle || state.pageUrl || "Active tab scanned";
     renderTableSelector();
@@ -324,6 +332,19 @@ function bindEvents() {
     await navigator.clipboard.writeText(csv);
     setToast(`Copied ${sliced.exportedCount} row(s) as CSV.`);
   });
+
+  if (els.copyMdBtn) {
+    els.copyMdBtn.addEventListener("click", async () => {
+      const { table, sliced, error } = getActiveTableExportSlice();
+      if (!table || error) {
+        setToast(error || "No table selected.");
+        return;
+      }
+      const md = toMarkdownTable(sliced.rows, table.headers);
+      await navigator.clipboard.writeText(md);
+      setToast(`Copied ${sliced.exportedCount} row(s) as Markdown.`);
+    });
+  }
 
   els.downloadCsvBtn.addEventListener("click", () => {
     const { table, sliced, error } = getActiveTableExportSlice();
